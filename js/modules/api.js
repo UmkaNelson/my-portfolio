@@ -8,7 +8,7 @@ async function fetchProjects() {
         // 1. Делаем HTTP-запрос к нашему JSON-файлу
         // fetch - встроенная функция браузера для работы с HTTP-запросами
         // await - ждем, пока запрос выполнится
-        const response = await fetch('/data/projects.json');     
+        const response = await fetch('/my-portfolio/data/projects.json');     
         // 2. Проверяем, успешен ли запрос
         // response.ok будет true, если статус ответа 200-299
         if (!response.ok) {
@@ -28,4 +28,5 @@ async function fetchProjects() {
     }
 }
 // Экспортируем функцию для использования в других модулях
+
 export { fetchProjects };
