@@ -3,62 +3,40 @@ import { openModal } from './modal.js';
 import { fetchProjects } from './api.js';
 import { showNotification } from './notifications.js';
 
-// Защита от множественной инициализации
+// ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ МОДУЛЯ =====
+// Объявляем здесь переменные, которые используются в нескольких функциях
+let projectsData = [];
+let modalImage, modalTitle, modalDescription, modalTechList, modalLink;
 let portfolioInitialized = false;
-let filterTimeout;
 
-// Функция для ожидания появления элементов в DOM
-function waitForElement(selector, timeout = 5000) {
-    return new Promise((resolve, reject) => {
-        const element = document.querySelector(selector);
-        if (element) {
-            resolve(element);
-            return;
-        }
-
-        const observer = new MutationObserver((mutations) => {
-            const element = document.querySelector(selector);
-            if (element) {
-                observer.disconnect();
-                resolve(element);
-            }
-        });
-
-        observer.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
-
-        setTimeout(() => {
-            observer.disconnect();
-            reject(new Error(`Элемент ${selector} не найден за ${timeout}ms`));
-        }, timeout);
-    });
-}
-
-// Функция для управления видимостью элементов загрузки
-function toggleLoadingElements(showLoading, showGrid, showError) {
-    const loadingIndicator = document.getElementById('portfolio-loading');
-    const portfolioGrid = document.querySelector('.portfolio-grid');
-    const errorMessage = document.getElementById('portfolio-error');
+// ===== ФУНКЦИЯ ДЛЯ ПОЛУЧЕНИЯ ЭЛЕМЕНТОВ DOM =====
+function getModalElements() {
+    console.log('🔍 Получаем элементы модального окна...');
     
-    if (loadingIndicator) {
-        loadingIndicator.style.display = showLoading ? 'block' : 'none';
-    }
-    if (portfolioGrid) {
-        portfolioGrid.style.display = showGrid ? 'grid' : 'none';
-    }
-    if (errorMessage) {
-        errorMessage.style.display = showError ? 'block' : 'none';
-    }
+    // Находим все необходимые элементы для модального окна проекта
+    // Эти элементы уже есть в HTML, мы просто получаем на них ссылки
+    modalImage = document.getElementById('modal-image');
+    modalTitle = document.getElementById('modal-title');
+    modalDescription = document.getElementById('modal-description');
+    modalTechList = document.getElementById('modal-tech-list');
+    modalLink = document.getElementById('modal-link');
+    
+    // Проверяем, все ли элементы найдены
+    const elementsFound = modalImage && modalTitle && modalDescription && modalTechList && modalLink;
+    console.log('✅ Элементы модального окна:', elementsFound ? 'найдены' : 'не найдены');
+    
+    return elementsFound;
 }
 
-// Функция для создания HTML-карточки проекта с ленивой загрузкой
+// ===== ФУНКЦИЯ ДЛЯ СОЗДАНИЯ КАРТОЧКИ ПРОЕКТА =====
 function createProjectCard(projectData) {
+    // Создаем div элемент для карточки проекта
     const projectCard = document.createElement('div');
+    // Добавляем CSS класс для стилизации
     projectCard.classList.add('portfolio-item');
     
-    // Вместо src используем data-src для ленивой загрузки
+    // Заполняем карточку HTML содержимым
+    // data-src вместо src для ленивой загрузки изображений
     projectCard.innerHTML = `
         <img data-src="${projectData.image}" alt="${projectData.title}" class="portfolio-image lazy-image">
         <div class="portfolio-overlay">
@@ -71,172 +49,85 @@ function createProjectCard(projectData) {
     return projectCard;
 }
 
-// Функция для создания фильтров с защитой от дублирования
-function createTechnologyFilters(projectsData) {
-    console.log('🔧 Создаём фильтры технологий...');
+// ===== ФУНКЦИЯ ДЛЯ ОТКРЫТИЯ МОДАЛЬНОГО ОКНА ПРОЕКТА =====
+function openProjectModal(e) {
+    console.log('🔄 Открываем модальное окно проекта...');
     
-    // Проверяем, не существуют ли уже фильтры
-    const existingFilters = document.querySelector('.portfolio-filters');
-    if (existingFilters) {
-        console.log('⚠️ Фильтры уже существуют, удаляем старые...');
-        existingFilters.remove();
+    // Предотвращаем стандартное поведение ссылки
+    e.preventDefault();
+    
+    // Получаем ID проекта из data-атрибута
+    const projectId = this.getAttribute('data-project');
+    console.log('📁 ID проекта:', projectId);
+    
+    // Ищем проект в массиве projectsData по ID
+    const projectData = projectsData.find(project => project.id === projectId);
+    
+    if (projectData) {
+        console.log('✅ Найден проект:', projectData.title);
+        
+        // Заполняем модальное окно данными проекта
+        modalImage.src = projectData.image;          // Устанавливаем изображение
+        modalImage.alt = projectData.title;          // Alt текст для доступности
+        modalTitle.textContent = projectData.title;  // Заголовок проекта
+        modalDescription.textContent = projectData.description; // Описание
+        
+        // Устанавливаем ссылку на проект
+        modalLink.href = projectData.link;
+        modalLink.textContent = projectData.link === '#' ? 'Скоро будет' : 'Перейти к проекту';
+        
+        // Очищаем список технологий
+        modalTechList.innerHTML = '';
+        
+        // Заполняем список технологий
+        projectData.technologies.forEach(tech => {
+            const techItem = document.createElement('li'); // Создаем элемент списка
+            techItem.textContent = tech;                   // Устанавливаем текст
+            modalTechList.appendChild(techItem);           // Добавляем в список
+        });
+        
+        // Открываем модальное окно
+        openModal('project-modal');
+    } else {
+        console.error('❌ Проект не найден:', projectId);
+        showNotification('Проект не найден', 'error');
     }
-    
-    // Собираем все уникальные технологии из всех проектов
-    const allTechnologies = new Set();
-    
-    projectsData.forEach(project => {
-        project.technologies.forEach(tech => {
-            allTechnologies.add(tech);
-        });
-    });
-    
-    console.log('📊 Найдено технологий:', allTechnologies.size);
-    
-    // Создаём контейнер для фильтров
-    const filtersContainer = document.createElement('div');
-    filtersContainer.classList.add('portfolio-filters');
-    
-    // Создаём кнопку "Все"
-    const allButton = document.createElement('button');
-    allButton.textContent = 'Все';
-    allButton.classList.add('filter-btn', 'active');
-    allButton.setAttribute('aria-label', 'Показать все проекты');
-    allButton.setAttribute('aria-pressed', 'true');
-    allButton.addEventListener('click', (e) => filterProjects('all', projectsData, e));
-    filtersContainer.appendChild(allButton);
-    
-    // Создаём кнопки для каждой технологии
-    allTechnologies.forEach(tech => {
-        const button = document.createElement('button');
-        button.textContent = tech;
-        button.classList.add('filter-btn');
-        button.setAttribute('aria-label', `Фильтровать проекты по технологии ${tech}`);
-        button.setAttribute('aria-pressed', 'false');
-        button.addEventListener('click', (e) => {
-            clearTimeout(filterTimeout);
-            filterTimeout = setTimeout(() => {
-                filterProjects(tech, projectsData, e);
-            }, 150);
-        });
-        filtersContainer.appendChild(button);
-    });
-    
-    // Вставляем фильтры перед контейнером проектов
-    const portfolioContainer = document.getElementById('portfolio-container');
-    portfolioContainer.parentNode.insertBefore(filtersContainer, portfolioContainer);
-    
-    console.log('✅ Фильтры успешно созданы');
 }
 
-// Функция для фильтрации проектов с анимациями
-function filterProjects(technology, projectsData, event) {
-    console.log('🎛️ Фильтруем проекты по технологии:', technology);
-    
-    const portfolioContainer = document.getElementById('portfolio-container');
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    
-    // Убираем активный класс со всех кнопок
-    filterButtons.forEach(btn => {
-        btn.classList.remove('active');
-        btn.setAttribute('aria-pressed', 'false');
-    });
-    
-    // Добавляем активный класс нажатой кнопке
-    event.target.classList.add('active');
-    event.target.setAttribute('aria-pressed', 'true');
-    
-    // Получаем текущие карточки проектов
-    const currentProjects = Array.from(portfolioContainer.children);
-    
-    // Если нет проектов для анимации, просто отображаем новые
-    if (currentProjects.length === 0) {
-        displayFilteredProjects(technology, projectsData);
-        return;
-    }
-    
-    // Анимация исчезновения текущих проектов
-    currentProjects.forEach((project, index) => {
-        setTimeout(() => {
-            project.style.transform = 'scale(0.8)';
-            project.style.opacity = '0';
-        }, index * 50);
-    });
-    
-    // После анимации исчезновения показываем новые проекты
-    setTimeout(() => {
-        displayFilteredProjects(technology, projectsData);
-    }, currentProjects.length * 50 + 200);
-}
-
-// Вспомогательная функция для отображения отфильтрованных проектов
-function displayFilteredProjects(technology, projectsData) {
-    const portfolioContainer = document.getElementById('portfolio-container');
-    
-    // Очищаем контейнер
-    portfolioContainer.innerHTML = '';
-    
-    // Фильтруем проекты
-    const filteredProjects = technology === 'all' 
-        ? projectsData 
-        : projectsData.filter(project => 
-            project.technologies.includes(technology)
-        );
-    
-    // Создаём карточки для отфильтрованных проектов
-    filteredProjects.forEach((project, index) => {
-        const projectCard = createProjectCard(project);
-        
-        // Начальное состояние для анимации появления
-        projectCard.style.transform = 'translateY(30px)';
-        projectCard.style.opacity = '0';
-        projectCard.style.transition = 'all 0.5s ease';
-        
-        portfolioContainer.appendChild(projectCard);
-        
-        // Анимация появления с задержкой
-        setTimeout(() => {
-            projectCard.style.transform = 'translateY(0)';
-            projectCard.style.opacity = '1';
-        }, index * 100);
-    });
-    
-    // Обновляем обработчики событий для новых карточек
-    setTimeout(() => {
-        const portfolioLinks = document.querySelectorAll('.portfolio-link');
-        portfolioLinks.forEach(link => {
-            link.addEventListener('click', openProjectModal);
-        });
-        
-        // Переинициализируем ленивую загрузку для новых изображений
-        initLazyLoading();
-    }, filteredProjects.length * 100 + 100);
-}
-
-// Функция для ленивой загрузки изображений
+// ===== ФУНКЦИЯ ДЛЯ ИНИЦИАЛИЗАЦИИ ЛЕНИВОЙ ЗАГРУЗКИ =====
 function initLazyLoading() {
+    console.log('🔍 Инициализируем ленивую загрузку...');
+    
+    // Проверяем поддержку IntersectionObserver (современный способ отслеживания видимости элементов)
     if ('IntersectionObserver' in window) {
+        // Создаем наблюдатель
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
+                // Если элемент стал видимым
                 if (entry.isIntersecting) {
                     const lazyImage = entry.target;
                     console.log('🖼️ Загружаем изображение:', lazyImage.alt);
                     
+                    // Заменяем data-src на src - браузер начнет загрузку
                     lazyImage.src = lazyImage.dataset.src;
+                    // Убираем класс ленивой загрузки
                     lazyImage.classList.remove('lazy-image');
+                    // Прекращаем наблюдение за этим элементом
                     imageObserver.unobserve(lazyImage);
                 }
             });
         });
 
+        // Находим все изображения с ленивой загрузкой и начинаем наблюдение
         const lazyImages = document.querySelectorAll('img.lazy-image');
+        console.log('📸 Найдено изображений для ленивой загрузки:', lazyImages.length);
+        
         lazyImages.forEach(lazyImage => {
             imageObserver.observe(lazyImage);
         });
-        
-        console.log('🔍 Ленивая загрузка активирована для', lazyImages.length, 'изображений');
     } else {
-        console.log('⚠️ Браузер не поддерживает IntersectionObserver, отключаем ленивую загрузку');
+        // Fallback для старых браузеров - загружаем все сразу
+        console.log('⚠️ Браузер не поддерживает IntersectionObserver');
         const lazyImages = document.querySelectorAll('img.lazy-image');
         lazyImages.forEach(lazyImage => {
             lazyImage.src = lazyImage.dataset.src;
@@ -245,118 +136,77 @@ function initLazyLoading() {
     }
 }
 
-// Функция для открытия модального окна проекта
-function openProjectModal(e) {
-    e.preventDefault();
-    
-    const projectId = this.getAttribute('data-project');
-    const projectData = projectsData.find(project => project.id === projectId);
-    
-    if (projectData) {
-        modalImage.src = projectData.image;
-        modalImage.alt = projectData.title;
-        modalTitle.textContent = projectData.title;
-        modalDescription.textContent = projectData.description;
-        modalLink.href = projectData.link;
-        
-        modalTechList.innerHTML = '';
-        projectData.technologies.forEach(tech => {
-            const li = document.createElement('li');
-            li.textContent = tech;
-            modalTechList.appendChild(li);
-        });
-        
-        openModal('project-modal');
-    }
-}
-
-// Объявляем переменные в глобальной области видимости функции initPortfolio
-let projectsData = [];
-let modalImage, modalTitle, modalDescription, modalTechList, modalLink;
-
+// ===== ГЛАВНАЯ ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ ПОРТФОЛИО =====
 async function initPortfolio() {
     // Защита от повторной инициализации
     if (portfolioInitialized) {
-        console.log('⚠️ Портфолио уже инициализировано, пропускаем...');
+        console.log('⚠️ Портфолио уже инициализировано');
         return;
     }
     portfolioInitialized = true;
     
-    console.log('🚀 Инициализация портфолио...');
-    
-    // Показываем индикатор загрузки, скрываем остальное
-    toggleLoadingElements(true, false, false);
+    console.log('🚀 Начало инициализации портфолио...');
     
     try {
-        console.log('⏳ Ожидаем появления элементов портфолио...');
+        // 1. Получаем элементы модального окна
+        if (!getModalElements()) {
+            throw new Error('Не найдены элементы модального окна');
+        }
         
-        // Ждем появления элементов модального окна (они есть в HTML)
-        await waitForElement('#modal-image');
-        console.log('✅ Элемент modal-image найден');
+        // 2. Загружаем данные проектов
+        console.log('📥 Загружаем данные проектов...');
+        projectsData = await fetchProjects();
         
-        await waitForElement('#modal-title');
-        console.log('✅ Элемент modal-title найден');
+        if (!projectsData || projectsData.length === 0) {
+            throw new Error('Не удалось загрузить данные проектов');
+        }
         
-        await waitForElement('#modal-tech-list');
-        console.log('✅ Элемент modal-tech-list найден');
+        console.log('✅ Загружено проектов:', projectsData.length);
         
-        // Получаем элементы DOM для модального окна
-        modalImage = document.getElementById('modal-image');
-        modalTitle = document.getElementById('modal-title');
-        modalDescription = document.getElementById('modal-description');
-        modalTechList = document.getElementById('modal-tech-list');
-        modalLink = document.getElementById('modal-link');
+        // 3. Находим контейнер для проектов
+        const portfolioContainer = document.getElementById('portfolio-container');
+        if (!portfolioContainer) {
+            throw new Error('Не найден контейнер для проектов');
+        }
+        
+        // 4. Очищаем контейнер и создаем карточки проектов
+        portfolioContainer.innerHTML = '';
+        
+        projectsData.forEach(project => {
+            const projectCard = createProjectCard(project);
+            portfolioContainer.appendChild(projectCard);
+        });
+        
+        // 5. Добавляем обработчики событий для карточек проектов
+        const portfolioLinks = document.querySelectorAll('.portfolio-link');
+        portfolioLinks.forEach(link => {
+            link.addEventListener('click', openProjectModal);
+        });
+        
+        // 6. Инициализируем ленивую загрузку
+        initLazyLoading();
+        
+        // 7. Прячем индикатор загрузки и показываем контент
+        const loadingIndicator = document.getElementById('portfolio-loading');
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+        
+        console.log('🎉 Портфолио успешно инициализировано!');
         
     } catch (error) {
-        console.error('❌ Ошибка при ожидании элементов:', error);
-        toggleLoadingElements(false, false, true);
+        console.error('❌ Ошибка инициализации портфолио:', error);
+        
+        // Показываем сообщение об ошибке
+        const loadingIndicator = document.getElementById('portfolio-loading');
+        const errorMessage = document.getElementById('portfolio-error');
+        
+        if (loadingIndicator) loadingIndicator.style.display = 'none';
+        if (errorMessage) errorMessage.style.display = 'block';
+        
         showNotification('Ошибка загрузки портфолио', 'error');
-        return;
     }
-    
-    // Загружаем данные проектов
-    console.log('📥 Загружаем данные проектов...');
-    projectsData = await fetchProjects();
-    
-    if (projectsData.length === 0) {
-        console.warn('⚠️ Не удалось загрузить данные проектов');
-        toggleLoadingElements(false, false, true);
-        showNotification('Не удалось загрузить проекты', 'error');
-        return;
-    }
-    
-    console.log('✅ Загружено проектов:', projectsData.length);
-    
-    // Находим контейнер для проектов
-    const portfolioContainer = document.getElementById('portfolio-container');
-    
-    // Очищаем контейнер (на случай повторной загрузки)
-    portfolioContainer.innerHTML = '';
-    
-    // Для каждого проекта создаём карточку и добавляем в контейнер
-    projectsData.forEach(project => {
-        const projectCard = createProjectCard(project);
-        portfolioContainer.appendChild(projectCard);
-    });
-    
-    // Скрываем индикатор загрузки и показываем сетку проектов
-    toggleLoadingElements(false, true, false);
-    
-    // Теперь нужно заново найти все ссылки портфолио (они были созданы динамически)
-    const portfolioLinks = document.querySelectorAll('.portfolio-link');
-    
-    // Назначаем обработчики для новых ссылок
-    portfolioLinks.forEach(link => {
-        link.addEventListener('click', openProjectModal);
-    });
-    
-    // Создаём фильтры по технологиям
-    createTechnologyFilters(projectsData);
-    
-    // Инициализируем ленивую загрузку изображений
-    initLazyLoading();
-    
-    console.log('✅ Портфолио успешно инициализировано');
 }
 
+// Экспортируем только главную функцию инициализации
 export { initPortfolio };
