@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Umka Nelson</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="./images/icon/icon100.png" type="image/png">
+    <link rel="icon" href="/images/icon/icon100.png" type="image/png">
 </head>
 <body>
     <header>
@@ -65,16 +65,24 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>Свяжитесь со мной</h2>
-            <form id="contact-form">
+            <form id="contact-form" action="https://formspree.io/f/xzzjekpp" method="POST">
                 <div class="form-group">
                     <label for="name">ВАШЕ ИМЯ</label>
                     <input type="text" id="name" name="name" required>
                 </div>
                 <div class="form-group">
+                    <label for="email">ВАШ EMAIL</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
                     <label for="message">СООБЩЕНИЕ</label>
                     <textarea id="message" name="message" rows="5" required></textarea>
-                 </div>
-                 <button type="submit">ОТПРАВИТЬ</button>
+                </div>
+                <!-- Скрытое поле для темы письма -->
+                <input type="hidden" name="_subject" value="Новое сообщение с сайта-портфолио">
+                <!-- Защита от спама -->
+                <input type="text" name="_gotcha" style="display:none">
+                <button type="submit">ОТПРАВИТЬ</button>
             </form>
         </div>
     </div>
@@ -99,4 +107,3 @@
     <script type="module" src="script.js"></script>
 </body>
 </html>
-
