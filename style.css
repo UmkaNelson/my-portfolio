@@ -1017,3 +1017,30 @@ body.dark-theme .portfolio-item {
         font-size: 20px;
     }
 }
+/* ===== СТИЛИ ДЛЯ ФОРМЫ И ОШИБОК ===== */
+#contact-form input:invalid,
+#contact-form textarea:invalid {
+    border-color: #e74c3c;
+}
+
+#contact-form input:valid,
+#contact-form textarea:valid {
+    border-color: #27ae60;
+}
+
+.error-message {
+    color: #e74c3c !important;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Темная тема для формы */
+body.dark-theme #contact-form input:invalid,
+body.dark-theme #contact-form textarea:invalid {
+    border-color: #e74c3c;
+}
+
+body.dark-theme #contact-form input:valid,
+body.dark-theme #contact-form textarea:valid {
+    border-color: #27ae60;
