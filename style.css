@@ -91,7 +91,7 @@ h1, h2 {
     margin-bottom: 15px;
 }
 
-/* ===== НАВИГАЦИя ===== */
+/* ===== НАВИГАЦИЯ ===== */
 nav {
     background-image: url('images/fon5.jpg');
     padding: 15px 0;
@@ -103,7 +103,7 @@ nav ul {
     list-style: none;
     display: flex;
     justify-content: center;
-    padding: 0;
+    padding: 1px;
 }
 
 nav ul li {
@@ -354,7 +354,8 @@ footer a:hover {
     opacity: 1;
 }
 
-.close {
+/* Стили для крестика в обычном модальном окне (контакты) */
+.modal-content .close {
     color: #aaa;
     float: right;
     font-size: 28px;
@@ -366,51 +367,43 @@ footer a:hover {
     z-index: 1002;
 }
 
-.close:hover {
+.modal-content .close:hover {
     color: #000;
-}
-
-/* Блокировка прокрутки при открытом модальном окне */
-body.modal-open {
-    overflow: hidden;
-}
-
-/* Стили для формы */
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.form-group input,
-.form-group textarea {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-button[type="submit"] {
-    background-color: #3498db;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button[type="submit"]:hover {
-    background-color: #2980b9;
 }
 
 /* Контейнер для изображения в модальном окне проекта */
 .modal-image-container {
+    position: relative; /* Делаем контейнер относительным для позиционирования крестика */
     width: 100%;
     height: 300px;
     overflow: hidden;
+}
+
+/* Стили для крестика в модальном окне проекта */
+.modal-image-container .close {
+    position: absolute; /* Абсолютное позиционирование относительно контейнера */
+    top: 15px; /* Отступ сверху */
+    right: 15px; /* Отступ справа - симметрично углу изображения */
+    color: white; /* Белый цвет для контраста на изображении */
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1002; /* Высокий z-index чтобы был поверх изображения */
+    background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный фон для лучшей видимости */
+    width: 40px; /* Фиксированная ширина */
+    height: 40px; /* Фиксированная высота */
+    border-radius: 50%; /* Круглая форма */
+    display: flex; /* Используем flex для центрирования */
+    align-items: center; /* Вертикальное центрирование */
+    justify-content: center; /* Горизонтальное центрирование */
+    transition: all 0.3s ease; /* Плавный переход для hover эффекта */
+}
+
+/* Эффект при наведении на крестик в модальном окне проекта */
+.modal-image-container .close:hover {
+    background-color: rgba(0, 0, 0, 0.8); /* Более темный фон при наведении */
+    transform: scale(1.1); /* Легкое увеличение */
+    color: #fff; /* Ярко-белый цвет */
 }
 
 .modal-project-image {
@@ -483,6 +476,42 @@ button[type="submit"]:hover {
 
 .project-link:hover {
     background-color: #219653;
+}
+
+/* Блокировка прокрутки при открытом модальном окне */
+body.modal-open {
+    overflow: hidden;
+}
+
+/* Стили для формы */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+button[type="submit"] {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button[type="submit"]:hover {
+    background-color: #2980b9;
 }
 
 /* ===== КНОПКА ПЕРЕКЛЮЧЕНИЯ ТЕМЫ ===== */
@@ -596,12 +625,23 @@ body.dark-theme .project-modal-content {
     background-color: #2d3748;
 }
 
-body.dark-theme .close {
+body.dark-theme .modal-content .close {
     color: #cbd5e0;
 }
 
-body.dark-theme .close:hover {
+body.dark-theme .modal-content .close:hover {
     color: #ffffff;
+}
+
+/* Темная тема для крестика в модальном окне проекта */
+body.dark-theme .modal-image-container .close {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.2); /* Светлый полупрозрачный фон в темной теме */
+}
+
+body.dark-theme .modal-image-container .close:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
 }
 
 body.dark-theme .form-group label {
@@ -674,117 +714,6 @@ body.dark-theme .project-link:hover {
     background-color: #27ae60;
 }
 
-/* ===== АДАПТИВНОСТЬ ===== */
-@media (max-width: 768px) {
-    body {
-        padding: 10px;
-    }
-    
-    main {
-        padding: 15px;
-        margin: 0 auto;
-    }
-    
-    header {
-        padding: 40px 0;
-    }
-    
-    nav ul {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    nav ul li {
-        margin: 5px 0;
-    }
-    
-    section {
-        margin-bottom: 25px;
-        padding: 15px;
-        border-left: none;
-        border-top: 3px solid #3498db;
-        border-radius: 8px;
-    }
-    
-    h1 {
-        font-size: 1.8em;
-    }
-    
-    h2 {
-        font-size: 1.4em;
-    }
-    
-    #theme-toggle {
-        top: 15px;
-        right: 15px;
-        font-size: 20px;
-    }
-    
-    .portfolio-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 15px;
-    }
-    
-    .project-modal-content {
-        width: 95%;
-        max-width: none;
-    }
-    
-    .modal-image-container {
-        height: 200px;
-    }
-    
-    #modal-tech-list {
-        gap: 8px;
-    }   
-    
-    #modal-tech-list li {
-        padding: 8px 14px;
-        font-size: 12px;
-    }
-    
-    /* Адаптивность для модальных окон */
-    .modal-content,
-    .project-modal-content {
-        width: 95%;
-        max-width: none;
-        padding: 15px;
-    }
-}
-
-@media (max-width: 480px) {
-    header {
-        padding: 30px 0;
-    }
-    
-    header h1 {
-        font-size: 1.5em;
-    }
-    
-    nav ul li a {
-        padding: 12px;
-        display: block;
-        text-align: center;
-    }
-    
-    section {
-        padding: 10px;
-    }
-    
-    #skills li {
-        padding: 8px;
-    }
-    
-    #theme-toggle {
-        top: 10px;
-        right: 10px;
-        font-size: 18px;
-    } 
-    
-    .portfolio-grid {
-        grid-template-columns: 1fr;
-    }
-}
 /* ===== УВЕДОМЛЕНИЯ ===== */
 .notification {
     position: fixed;
@@ -957,4 +886,134 @@ body.dark-theme .filter-btn.active {
 
 body.dark-theme .portfolio-item {
     background: #2d3748;
+}
+
+/* ===== АДАПТИВНОСТЬ ===== */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    main {
+        padding: 15px;
+        margin: 0 auto;
+    }
+    
+    header {
+        padding: 40px 0;
+    }
+    
+    nav ul {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    nav ul li {
+        margin: 5px 0;
+    }
+    
+    section {
+        margin-bottom: 25px;
+        padding: 15px;
+        border-left: none;
+        border-top: 3px solid #3498db;
+        border-radius: 8px;
+    }
+    
+    h1 {
+        font-size: 1.8em;
+    }
+    
+    h2 {
+        font-size: 1.4em;
+    }
+    
+    #theme-toggle {
+        top: 15px;
+        right: 15px;
+        font-size: 20px;
+    }
+    
+    .portfolio-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+    }
+    
+    .project-modal-content {
+        width: 95%;
+        max-width: none;
+    }
+    
+    .modal-image-container {
+        height: 200px;
+    }
+    
+    #modal-tech-list {
+        gap: 8px;
+    }   
+    
+    #modal-tech-list li {
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+    
+    /* Адаптивность для модальных окон */
+    .modal-content,
+    .project-modal-content {
+        width: 95%;
+        max-width: none;
+        padding: 15px;
+    }
+    
+    /* Адаптивность для крестика в модальном окне проекта */
+    .modal-image-container .close {
+        top: 10px;
+        right: 10px;
+        width: 35px;
+        height: 35px;
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        padding: 30px 0;
+    }
+    
+    header h1 {
+        font-size: 1.5em;
+    }
+    
+    nav ul li a {
+        padding: 12px;
+        display: block;
+        text-align: center;
+    }
+    
+    section {
+        padding: 10px;
+    }
+    
+    #skills li {
+        padding: 8px;
+    }
+    
+    #theme-toggle {
+        top: 10px;
+        right: 10px;
+        font-size: 18px;
+    } 
+    
+    .portfolio-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Адаптивность для крестика в модальном окне проекта */
+    .modal-image-container .close {
+        top: 8px;
+        right: 8px;
+        width: 30px;
+        height: 30px;
+        font-size: 20px;
+    }
 }
