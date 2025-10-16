@@ -1,0 +1,26 @@
+[
+  {
+    "id": "project-1",
+    "title": "Личный сайт-портфолио",
+    "description": "Современный адаптивный сайт-портфолио с использованием HTML5, CSS3 и JavaScript. Реализована темная тема, анимации и интерактивные элементы.",
+    "technologies": ["HTML5", "CSS3", "JavaScript", "Flexbox", "Grid"],
+    "link": "#",
+    "image": "images/fon-knopki-4.jpg"
+  },
+  {
+    "id": "project-2", 
+    "title": "Интернет-магазин",
+    "description": "Разработка полнофункционального интернет-магазина с корзиной покупок, фильтрацией товаров и системой оформления заказов.",
+    "technologies": ["React", "Node.js", "MongoDB", "Express", "Redux"],
+    "link": "#",
+    "image": "images/fon-knopki-5.jpg"
+  },
+  {
+    "id": "project-3",
+    "title": "Мобильное приложение", 
+    "description": "Создание кроссплатформенного мобильного приложения для учета личных финансов с синхронизацией между устройствами.",
+    "technologies": ["React Native", "Firebase", "Redux", "Chart.js"],
+    "link": "#",
+    "image": "images/fon-knopki-6.jpg"
+  }
+]
