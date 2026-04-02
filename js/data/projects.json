@@ -1,0 +1,68 @@
+[
+  {
+    "id": "project-1",
+    "title": "CarLux Motors",
+    "description": "Одностраничный сайт для автосервиса с прайсом услуг, встроенной картой, отзывами с Яндекс Карт и Telegram-ботом для обратной связи. Сайт полностью готов.",
+    "technologies": ["HTML5", "CSS3", "JavaScript", "Yandex Maps", "Telegram Bot"],
+    "link": "https://carluxmotors.ru/",
+    "image": "images/pj1.png",
+    "category": "completed",
+    "features": [
+      "Прайс с услугами",
+      "Интеграция карты",
+      "Отзывы из Яндекс Карт",
+      "Форма через Telegram-бот"
+    ]
+  },
+  {
+    "id": "project-2",
+    "title": "EleonorLab",
+    "description": "Многостраничный сайт для архитектурного бюро: более 50 карточек проектов, Telegram-бот для формы обратной связи, много анимаций и дизайнерских эффектов. Сайт в работе.",
+    "technologies": ["HTML5", "CSS3", "JavaScript", "Telegram Bot", "UI Animations"],
+    "link": "https://umkanelson.github.io/EleonorLab/",
+    "image": "images/pj2.png",
+    "category": "in-progress",
+    "features": [
+      "Каталог из 50+ проектов",
+      "Многостраничная структура",
+      "Кастомные анимации",
+      "Форма через Telegram-бот"
+    ]
+  },
+  {
+    "id": "project-3",
+    "title": "СФО Leader",
+    "description": "Одностраничный сайт для специализированного финансового общества. Сайт в работе.",
+    "technologies": ["HTML5", "CSS3", "JavaScript"],
+    "link": "https://sfo-leader.ru/",
+    "image": "images/pj3.png",
+    "category": "in-progress"
+  },
+  {
+    "id": "project-4",
+    "title": "Nanotech Finance",
+    "description": "Одностраничный сайт для управляющей компании нового поколения. Сайт полностью готов.",
+    "technologies": ["HTML5", "CSS3", "JavaScript"],
+    "link": "https://nanotechfinance.ru/",
+    "image": "images/pj4.png",
+    "category": "completed"
+  },
+  {
+    "id": "project-5",
+    "title": "Интернет-магазин Охраны Труда",
+    "description": "Интернет-магазин для организации, которая продает товары для охраны труда. Сайт в работе.",
+    "technologies": ["HTML5", "CSS3", "JavaScript", "E-commerce"],
+    "link": "",
+    "image": "images/pj5.png",
+    "category": "in-progress"
+  },
+  {
+    "id": "project-6",
+    "title": "Сайт для SMM-креатора",
+    "description": "Промо-сайт для SMM-креатора с акцентом на визуальную подачу. Сайт в работе.",
+    "technologies": ["HTML5", "CSS3", "JavaScript", "UI Animations"],
+    "link": "",
+    "image": "images/pj6.png",
+    "category": "in-progress"
+  }
+]

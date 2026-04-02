@@ -616,3 +616,60 @@ body.dark-theme .privacy-date {
         width: calc(100% - 40px);
     }
 }
+/* ===== ДОПОЛНИТЕЛЬНЫЕ СТИЛИ ДЛЯ ПРОЕКТА АВТОСЕРВИСА ===== */
+.project-modal__features {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--c-gray-line);
+}
+
+.project-modal__features h3 {
+    font-size: var(--text-xl);
+    margin-bottom: 16px;
+    color: var(--c-black);
+}
+
+.project-modal__features ul {
+    list-style: none;
+    padding: 0;
+}
+
+.project-modal__features li {
+    margin-bottom: 8px;
+    padding-left: 20px;
+    position: relative;
+    color: var(--c-gray);
+}
+
+.project-modal__features li:before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--c-green);
+    font-weight: bold;
+}
+
+/* Темная тема для особенностей проекта */
+body.dark-theme .project-modal__features h3 {
+    color: var(--c-black);
+}
+
+body.dark-theme .project-modal__features li {
+    color: var(--c-gray-3);
+}
+
+body.dark-theme .project-modal__features li:before {
+    color: var(--c-green);
+}
+
+/* Адаптивность для особенностей проекта */
+@media (max-width: 768px) {
+    .project-modal__features {
+        margin-top: 20px;
+        padding-top: 20px;
+    }
+    
+    .project-modal__features h3 {
+        font-size: var(--text-lg);
+    }
+}

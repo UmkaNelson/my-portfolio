@@ -7,13 +7,19 @@ export function initForm() {
     
     if (!contactForm) return;
     
-    // Устанавливаем action формы для Formspree
-    contactForm.action = 'https://formspree.io/f/xzzjekpp';
+    // Безопасный подход - endpoint из data-атрибута или переменной окружения
+    const formspreeEndpoint = contactForm.dataset.endpoint || process.env.FORMSPREE_ENDPOINT;
+    
+    if (formspreeEndpoint) {
+        contactForm.action = formspreeEndpoint;
+    }
+    
     contactForm.method = 'POST';
     
     // Добавляем обработчик для чекбокса
     privacyCheckbox.addEventListener('change', function() {
         submitBtn.disabled = !this.checked;
+        submitBtn.setAttribute('aria-disabled', !this.checked);
     });
     
     // Обработчик для открытия модального окна политики
@@ -31,7 +37,7 @@ export function initForm() {
         privacyAcceptBtn.addEventListener('click', () => {
             closePrivacyModal();
             privacyCheckbox.checked = true;
-            submitBtn.disabled = false;
+            privacyCheckbox.dispatchEvent(new Event('change'));
         });
     }
     
@@ -39,11 +45,13 @@ export function initForm() {
     function openPrivacyModal() {
         privacyModal.classList.add('active');
         document.body.style.overflow = 'hidden';
+        document.body.classList.add('modal-open');
     }
     
     function closePrivacyModal() {
         privacyModal.classList.remove('active');
         document.body.style.overflow = 'auto';
+        document.body.classList.remove('modal-open');
     }
     
     // Закрытие модального окна политики
@@ -74,9 +82,9 @@ export function initForm() {
         
         const formData = new FormData(contactForm);
         const data = {
-            name: formData.get('name'),
-            email: formData.get('email'),
-            message: formData.get('message')
+            name: formData.get('name') || '',
+            email: formData.get('email') || '',
+            message: formData.get('message') || ''
         };
         
         // Валидация
@@ -88,12 +96,13 @@ export function initForm() {
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Отправка...';
         submitBtn.disabled = true;
+        submitBtn.setAttribute('aria-disabled', 'true');
         
         try {
             // Отправка через Formspree
             const response = await fetch(contactForm.action, {
                 method: 'POST',
-                body: new FormData(contactForm),
+                body: formData,
                 headers: {
                     'Accept': 'application/json'
                 }
@@ -103,7 +112,7 @@ export function initForm() {
                 showNotification('Сообщение успешно отправлено!', 'success');
                 contactForm.reset();
                 privacyCheckbox.checked = false;
-                submitBtn.disabled = true;
+                privacyCheckbox.dispatchEvent(new Event('change'));
             } else {
                 throw new Error('Ошибка при отправке формы');
             }
@@ -113,6 +122,7 @@ export function initForm() {
         } finally {
             submitBtn.textContent = originalText;
             submitBtn.disabled = !privacyCheckbox.checked;
+            submitBtn.setAttribute('aria-disabled', !privacyCheckbox.checked);
         }
     });
     
@@ -153,7 +163,10 @@ export function initForm() {
     // Показать ошибку
     function showError(fieldName, message) {
         const field = document.getElementById(fieldName);
+        if (!field) return;
+        
         const formGroup = field.closest('.form-group');
+        if (!formGroup) return;
         
         let errorElement = formGroup.querySelector('.error-message');
         if (!errorElement) {
@@ -163,6 +176,7 @@ export function initForm() {
         }
         
         errorElement.textContent = message;
+        errorElement.setAttribute('role', 'alert');
         field.style.borderColor = 'var(--c-red)';
     }
     
@@ -181,10 +195,12 @@ export function initForm() {
     function showNotification(message, type = 'info') {
         const notification = document.createElement('div');
         notification.className = `notification notification--${type}`;
+        notification.setAttribute('role', 'alert');
+        notification.setAttribute('aria-live', 'polite');
         notification.innerHTML = `
             <div class="notification__content">
                 <span class="notification__message">${message}</span>
-                <button class="notification__close">&times;</button>
+                <button class="notification__close" aria-label="Закрыть уведомление">&times;</button>
             </div>
         `;
         
